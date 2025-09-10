@@ -1,5 +1,5 @@
-import { useState } from "react";
-import { Link } from "react-router-dom";
+import { useState, useEffect } from "react";
+import { Link, useLocation } from "react-router-dom";
 import { Eye, EyeOff } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -8,61 +8,96 @@ import { Checkbox } from "@/components/ui/checkbox";
 import Navbar from "@/components/Navbar";
 import loginIllustration from "@/assets/login-illustration.jpg";
 import { Popup } from "../Components/ui/popup";
+import { useDispatch , useSelector } from "react-redux";
+import { loginUser } from "../Slices/Auth/Login.js";
+import { useNavigate } from "react-router-dom";
 
 const Login = () => {
+  const navigate = useNavigate();
+  const dispatch = useDispatch();
+  const {loading} = useSelector((state) => state.Login)
   const [showPassword, setShowPassword] = useState(false);
   const [formData, setFormData] = useState({
     username: "",
     password: "",
     rememberMe: false,
   });
-  const [errors, setErrors] = useState({});
 
-  // ✅ Move popup states INSIDE component
+  const [errors, setErrors] = useState("");
+  const [success, setSuccess] = useState("");
   const [showSuccessPopup, setShowSuccessPopup] = useState(false);
   const [showErrorPopup, setShowErrorPopup] = useState(false);
 
-  const validateForm = () => {
-    let newErrors ;
+  const location = useLocation();
+  const messages = location.state?.message || "";
+  const email = location.state?.email || "";
+  const password = location.state?.password || "";
 
+  useEffect(() => {
+    if (messages) {
+      setSuccess(messages);
+      setShowSuccessPopup(true);
+      setFormData((prev) => ({
+        ...prev,
+        username: email,
+        password: password,
+      }));
+    }
+  }, [messages, email, password]);
+
+  const validateForm = () => {
     if (!formData.username.trim()) {
-      newErrors = "Username is required";
-      setErrors(newErrors);
+      setErrors("Username is required");
       setShowErrorPopup(true);
       return false;
     }
 
     if (!formData.password) {
-      newErrors = "Password is required";
-      setErrors(newErrors);
+      setErrors("Password is required");
       setShowErrorPopup(true);
       return false;
     }
 
+    setErrors(""); 
     return true;
   };
 
   const handleSubmit = (e) => {
     e.preventDefault();
     if (validateForm()) {
-      console.log("Login form submitted:", formData);
+        const data = new FormData();
+        data.append("email" , formData.username);
+        data.append("password" , formData.password);
 
-      // ✅ Show success popup
-      setShowSuccessPopup(true);
-
-      // Simulate login logic (e.g., API call)
-      // Reset form if you want
-      // setFormData({ username: "", password: "", rememberMe: false });
+        dispatch(loginUser(data))
+        .unwrap()
+        .then((res) =>{
+          setSuccess(res.message);
+          setShowSuccessPopup(true);
+          navigate('/' , {state : {message : res.message}});
+        })
+        .catch((error) =>{
+          setErrors(error);
+          setShowErrorPopup(true);
+        });
     }
   };
 
   const handleInputChange = (field, value) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
 
-    if (errors[field]) {
-      setErrors((prev) => ({ ...prev, [field]: "" }));
+    if (errors) {
+      setErrors("");
     }
   };
+
+  if(loading){
+    return(
+      <>
+        <p>This is Shimming effect!!</p>
+      </>
+    )
+  }
 
   return (
     <div className="h-screen bg-[#f2f6fc] flex flex-col">
@@ -74,7 +109,9 @@ const Login = () => {
             {/* Form Section */}
             <div className="p-8 lg:p-12">
               <div className="max-w-md mx-auto">
-                <h1 className="text-3xl font-bold text-foreground mb-8">Log in</h1>
+                <h1 className="text-3xl font-bold text-foreground mb-8">
+                  Log in
+                </h1>
 
                 <form onSubmit={handleSubmit} className="space-y-6">
                   {/* Username */}
@@ -84,8 +121,10 @@ const Login = () => {
                       id="username"
                       type="text"
                       value={formData.username}
-                      onChange={(e) => handleInputChange("username", e.target.value)}
-                      className={`w-full bg-muted border-0 rounded-full px-4 py-3 `}
+                      onChange={(e) =>
+                        handleInputChange("username", e.target.value)
+                      }
+                      className="w-full bg-muted border-0 rounded-full px-4 py-3"
                       placeholder="Enter your username"
                     />
                   </div>
@@ -98,8 +137,10 @@ const Login = () => {
                         id="password"
                         type={showPassword ? "text" : "password"}
                         value={formData.password}
-                        onChange={(e) => handleInputChange("password", e.target.value)}
-                        className={`w-full bg-muted border-0 rounded-full px-4 py-3 pr-12`}
+                        onChange={(e) =>
+                          handleInputChange("password", e.target.value)
+                        }
+                        className="w-full bg-muted border-0 rounded-full px-4 py-3 pr-12"
                         placeholder="Enter your password"
                       />
                       <button
@@ -107,7 +148,11 @@ const Login = () => {
                         onClick={() => setShowPassword(!showPassword)}
                         className="absolute right-4 top-1/2 transform -translate-y-1/2"
                       >
-                        {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+                        {showPassword ? (
+                          <EyeOff size={20} />
+                        ) : (
+                          <Eye size={20} />
+                        )}
                       </button>
                     </div>
                   </div>
@@ -124,7 +169,10 @@ const Login = () => {
                       />
                       <Label htmlFor="remember">Remember Me</Label>
                     </div>
-                    <Link to="/forgot-password" className="text-sm hover:underline">
+                    <Link
+                      to="/forgot-password"
+                      className="text-sm hover:underline"
+                    >
                       Forgot Password?
                     </Link>
                   </div>
@@ -156,20 +204,18 @@ const Login = () => {
         </div>
       </div>
 
-
       {showSuccessPopup && (
         <Popup
           type="success"
-          message="Login successfully!"
+          message={success || "Login successfully!"}
           onClose={() => setShowSuccessPopup(false)}
         />
       )}
 
-
       {showErrorPopup && (
         <Popup
           type="error"
-          message={errors}
+          message={errors || "Something went wrong!"}
           onClose={() => setShowErrorPopup(false)}
         />
       )}

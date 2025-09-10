@@ -4,21 +4,37 @@ import { Eye, EyeOff, Upload, User } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { Calendar } from "@/components/ui/calendar";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
 import { format } from "date-fns";
 import { CalendarIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
 import Navbar from "@/components/Navbar";
 import signupIllustration from "@/assets/signup-illustration.jpg";
 import { Popup } from "../Components/ui/popup";
+import { useDispatch, useSelector } from "react-redux";
+import { signupUser } from "../Slices/Auth/Registration";
+import { useNavigate } from "react-router-dom";
+
 
 const Signup = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [profilePicture, setProfilePicture] = useState(null);
   const [profilePreview, setProfilePreview] = useState(null);
+  const dispatch = useDispatch();
+  const { loading, error } = useSelector((state) => state.Registration);
   const [formData, setFormData] = useState({
     fullName: "",
     rollNumber: "",
@@ -28,7 +44,11 @@ const Signup = () => {
     password: "",
     confirmPassword: "",
   });
+
   const [errors, setErrors] = useState({});
+  const [success , setSuccess] = useState({});
+  const navigate = useNavigate();
+
 
   const university = [
     { value: "nirma university", label: "Nirma University" },
@@ -39,7 +59,6 @@ const Signup = () => {
   const [showSuccessPopup, setShowSuccessPopup] = useState(false);
   const [showErrorPopup, setShowErrorPopup] = useState(false);
 
-
   const validateEmail = (email) => {
     const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
     return emailRegex.test(email);
@@ -47,70 +66,59 @@ const Signup = () => {
 
   const validateForm = () => {
     let newErrors;
-    
+
     if (!formData.fullName.trim()) {
       newErrors = "Full Name is required";
       setErrors(newErrors);
       setShowErrorPopup(true);
       return false;
-      // newErrors.fullName = "Full name is required";
     }
-    
+
     if (!formData.rollNumber.trim()) {
       newErrors = "Roll number is required";
       setErrors(newErrors);
       setShowErrorPopup(true);
       return false;
-      // newErrors.rollNumber = "Roll number is required";
     }
-    
+
     if (!formData.email.trim()) {
       newErrors = "Email is required";
       setErrors(newErrors);
       setShowErrorPopup(true);
       return false;
-      
-      // newErrors.email = "Email is required";
     } else if (!validateEmail(formData.email)) {
-      
       newErrors = "Email must be domain";
       setErrors(newErrors);
       setShowErrorPopup(true);
       return false;
-      
-      // newErrors.email = "Email must be from nirmauni.ac.in domain";
     }
-    
+
     if (!formData.university) {
       newErrors = "university is required";
       setErrors(newErrors);
       setShowErrorPopup(true);
       return false;
-      
-      // newErrors.university = "university is required";
     }
-    
+
     if (!formData.dateOfBirth) {
       newErrors = "Date of birth is required";
       setErrors(newErrors);
       setShowErrorPopup(true);
       return false;
-      // newErrors.dateOfBirth = "Date of birth is required";
     }
-    
+
     if (!formData.password) {
       newErrors = "Password is required";
       setErrors(newErrors);
       setShowErrorPopup(true);
       return false;
-      // newErrors.password = "Password is required";
     } else if (formData.password.length < 6) {
       newErrors = "Password must be at least 6 characters";
       setErrors(newErrors);
       setShowErrorPopup(true);
       return false;
     }
-    
+
     if (!formData.confirmPassword) {
       newErrors = "Please confirm your password";
       setErrors(newErrors);
@@ -122,23 +130,40 @@ const Signup = () => {
       setShowErrorPopup(true);
       return false;
     }
-    
-    setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
+    return true ;
   };
 
   const handleSubmit = (e) => {
     e.preventDefault();
     if (validateForm()) {
-      console.log("Signup form submitted:", formData);
-      // Handle signup logic here
+      const data = new FormData();
+      data.append("fullName", formData.fullName);
+      data.append("enrollmentNo", formData.rollNumber);
+      data.append("email", formData.email);
+      data.append("universityName", formData.university);
+      data.append("dob", formData.dateOfBirth);
+      data.append("password", formData.password);
+      if (profilePicture) {
+        data.append("profilePic", profilePicture);
+      }
+      dispatch(signupUser(data))
+      .unwrap()
+      .then((res) => {
+        setSuccess(res.message);
+        setShowSuccessPopup(true);
+        navigate('/login' , {state : { message: res.message , email : formData.email , password : formData.password }})
+      })
+      .catch((error) => {
+        setErrors(error);
+        setShowErrorPopup(true)
+      });
     }
   };
 
   const handleInputChange = (field, value) => {
-    setFormData(prev => ({ ...prev, [field]: value }));
+    setFormData((prev) => ({ ...prev, [field]: value }));
     if (errors[field]) {
-      setErrors(prev => ({ ...prev, [field]: "" }));
+      setErrors((prev) => ({ ...prev, [field]: "" }));
     }
   };
 
@@ -154,62 +179,91 @@ const Signup = () => {
     }
   };
 
+  if (loading) {
+    return (
+      <>
+        <p>Hii My Name is Rishi!!</p>
+      </>
+    );
+  }
+
   return (
     <div className="h-screen bg-[#f2f6fc] flex flex-col">
       <Navbar />
-      
+
       <div className="flex-1 flex items-center justify-center px-6 py-8 overflow-hidden">
         <div className="w-full max-w-6xl bg-card rounded-2xl shadow-card overflow-hidden h-full max-h-[calc(100vh-8rem)]">
           <div className="grid lg:grid-cols-2 gap-0 h-full">
             {/* Form Section */}
             <div className="p-8 lg:p-12 overflow-y-auto">
               <div className="max-w-md mx-auto">
-                <h1 className="text-3xl font-bold text-foreground mb-8">Sign up</h1>
-                
+                <h1 className="text-3xl font-bold text-foreground mb-8">
+                  Sign up
+                </h1>
+
                 <form onSubmit={handleSubmit} className="space-y-6">
                   <div className="space-y-2">
-                    <Label htmlFor="fullName" className="text-sm font-medium text-foreground">
+                    <Label
+                      htmlFor="fullName"
+                      className="text-sm font-medium text-foreground"
+                    >
                       Full Name
                     </Label>
                     <Input
                       id="fullName"
                       type="text"
                       value={formData.fullName}
-                      onChange={(e) => handleInputChange("fullName", e.target.value)}
+                      onChange={(e) =>
+                        handleInputChange("fullName", e.target.value)
+                      }
                       className={`w-full bg-muted border-0 rounded-full px-4 py-3 text-foreground placeholder:text-muted-foreground focus:ring-2 focus:ring-primary `}
                       placeholder="Enter your full name"
                     />
                     {errors.fullName && (
-                      <p className="text-sm text-destructive">{errors.fullName}</p>
+                      <p className="text-sm text-destructive">
+                        {errors.fullName}
+                      </p>
                     )}
                   </div>
 
                   <div className="space-y-2">
-                    <Label htmlFor="rollNumber" className="text-sm font-medium text-foreground">
+                    <Label
+                      htmlFor="rollNumber"
+                      className="text-sm font-medium text-foreground"
+                    >
                       Roll Number
                     </Label>
                     <Input
                       id="rollNumber"
                       type="text"
                       value={formData.rollNumber}
-                      onChange={(e) => handleInputChange("rollNumber", e.target.value)}
+                      onChange={(e) =>
+                        handleInputChange("rollNumber", e.target.value)
+                      }
                       className={`w-full bg-muted border-0 rounded-full px-4 py-3 text-foreground placeholder:text-muted-foreground focus:ring-2 focus:ring-primary `}
                       placeholder="Enter your roll number"
                     />
                     {errors.rollNumber && (
-                      <p className="text-sm text-destructive">{errors.rollNumber}</p>
+                      <p className="text-sm text-destructive">
+                        {errors.rollNumber}
+                      </p>
                     )}
                   </div>
 
                   <div className="space-y-2">
-                    <Label htmlFor="email" className="text-sm font-medium text-foreground">
+                    <Label
+                      htmlFor="email"
+                      className="text-sm font-medium text-foreground"
+                    >
                       Email Address
                     </Label>
                     <Input
                       id="email"
                       type="text"
                       value={formData.email}
-                      onChange={(e) => handleInputChange("email", e.target.value)}
+                      onChange={(e) =>
+                        handleInputChange("email", e.target.value)
+                      }
                       className={`w-full bg-muted border-0 rounded-full px-4 py-3 text-foreground placeholder:text-muted-foreground focus:ring-2 focus:ring-primary `}
                       placeholder="example@nirmauni.ac.in"
                     />
@@ -222,20 +276,32 @@ const Signup = () => {
                     <Label className="text-sm font-medium text-foreground">
                       University
                     </Label>
-                    <Select onValueChange={(value) => handleInputChange("university", value)}>
-                      <SelectTrigger className={`w-full bg-muted border-0 rounded-full px-4 py-3 text-foreground focus:ring-2 focus:ring-primary `}>
+                    <Select
+                      onValueChange={(value) =>
+                        handleInputChange("university", value)
+                      }
+                    >
+                      <SelectTrigger
+                        className={`w-full bg-muted border-0 rounded-full px-4 py-3 text-foreground focus:ring-2 focus:ring-primary `}
+                      >
                         <SelectValue placeholder="Select your university" />
                       </SelectTrigger>
                       <SelectContent className="bg-card border border-border rounded-lg shadow-soft">
                         {university.map((dept) => (
-                          <SelectItem key={dept.value} value={dept.value} className="hover:bg-accent">
+                          <SelectItem
+                            key={dept.value}
+                            value={dept.value}
+                            className="hover:bg-accent"
+                          >
                             {dept.label}
                           </SelectItem>
                         ))}
                       </SelectContent>
                     </Select>
                     {errors.university && (
-                      <p className="text-sm text-destructive">{errors.university}</p>
+                      <p className="text-sm text-destructive">
+                        {errors.university}
+                      </p>
                     )}
                   </div>
 
@@ -261,11 +327,16 @@ const Signup = () => {
                           <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
                         </Button>
                       </PopoverTrigger>
-                      <PopoverContent className="w-auto p-0 bg-card border border-border rounded-lg shadow-soft" align="start">
+                      <PopoverContent
+                        className="w-auto p-0 bg-card border border-border rounded-lg shadow-soft"
+                        align="start"
+                      >
                         <Calendar
                           mode="single"
                           selected={formData.dateOfBirth}
-                          onSelect={(date) => handleInputChange("dateOfBirth", date)}
+                          onSelect={(date) =>
+                            handleInputChange("dateOfBirth", date)
+                          }
                           disabled={(date) =>
                             date > new Date() || date < new Date("1900-01-01")
                           }
@@ -275,7 +346,9 @@ const Signup = () => {
                       </PopoverContent>
                     </Popover>
                     {errors.dateOfBirth && (
-                      <p className="text-sm text-destructive">{errors.dateOfBirth}</p>
+                      <p className="text-sm text-destructive">
+                        {errors.dateOfBirth}
+                      </p>
                     )}
                   </div>
 
@@ -306,7 +379,12 @@ const Signup = () => {
                           id="profile-upload"
                         />
                         <Label htmlFor="profile-upload">
-                          <Button type="button" variant="outline" className="w-full border-primary text-primary hover:bg-primary hover:text-primary-foreground cursor-pointer" asChild>
+                          <Button
+                            type="button"
+                            variant="outline"
+                            className="w-full border-primary text-primary hover:bg-primary hover:text-primary-foreground cursor-pointer"
+                            asChild
+                          >
                             <span className="flex items-center justify-center">
                               <Upload className="w-4 h-4 mr-2" />
                               Choose File
@@ -319,7 +397,10 @@ const Signup = () => {
 
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div className="space-y-2">
-                      <Label htmlFor="password" className="text-sm font-medium text-foreground">
+                      <Label
+                        htmlFor="password"
+                        className="text-sm font-medium text-foreground"
+                      >
                         Password
                       </Label>
                       <div className="relative">
@@ -327,7 +408,9 @@ const Signup = () => {
                           id="password"
                           type={showPassword ? "text" : "password"}
                           value={formData.password}
-                          onChange={(e) => handleInputChange("password", e.target.value)}
+                          onChange={(e) =>
+                            handleInputChange("password", e.target.value)
+                          }
                           className={`w-full bg-muted border-0 rounded-full px-4 py-3 pr-12 text-foreground placeholder:text-muted-foreground focus:ring-2 focus:ring-primary`}
                           placeholder="Password"
                         />
@@ -336,16 +419,25 @@ const Signup = () => {
                           onClick={() => setShowPassword(!showPassword)}
                           className="absolute right-4 top-1/2 transform -translate-y-1/2 text-muted-foreground hover:text-foreground"
                         >
-                          {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+                          {showPassword ? (
+                            <EyeOff size={20} />
+                          ) : (
+                            <Eye size={20} />
+                          )}
                         </button>
                       </div>
                       {errors.password && (
-                        <p className="text-sm text-destructive">{errors.password}</p>
+                        <p className="text-sm text-destructive">
+                          {errors.password}
+                        </p>
                       )}
                     </div>
 
                     <div className="space-y-2">
-                      <Label htmlFor="confirmPassword" className="text-sm font-medium text-foreground">
+                      <Label
+                        htmlFor="confirmPassword"
+                        className="text-sm font-medium text-foreground"
+                      >
                         Confirm Password
                       </Label>
                       <div className="relative">
@@ -353,20 +445,30 @@ const Signup = () => {
                           id="confirmPassword"
                           type={showConfirmPassword ? "text" : "password"}
                           value={formData.confirmPassword}
-                          onChange={(e) => handleInputChange("confirmPassword", e.target.value)}
+                          onChange={(e) =>
+                            handleInputChange("confirmPassword", e.target.value)
+                          }
                           className={`w-full bg-muted border-0 rounded-full px-4 py-3 pr-12 text-foreground placeholder:text-muted-foreground focus:ring-2 focus:ring-primary `}
                           placeholder="Confirm Password"
                         />
                         <button
                           type="button"
-                          onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                          onClick={() =>
+                            setShowConfirmPassword(!showConfirmPassword)
+                          }
                           className="absolute right-4 top-1/2 transform -translate-y-1/2 text-muted-foreground hover:text-foreground"
                         >
-                          {showConfirmPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+                          {showConfirmPassword ? (
+                            <EyeOff size={20} />
+                          ) : (
+                            <Eye size={20} />
+                          )}
                         </button>
                       </div>
                       {errors.confirmPassword && (
-                        <p className="text-sm text-destructive">{errors.confirmPassword}</p>
+                        <p className="text-sm text-destructive">
+                          {errors.confirmPassword}
+                        </p>
                       )}
                     </div>
                   </div>
@@ -380,7 +482,10 @@ const Signup = () => {
 
                   <div className="text-center">
                     <span className="text-muted-foreground">or </span>
-                    <Link to="/login" className="text-primary hover:underline font-medium">
+                    <Link
+                      to="/login"
+                      className="text-primary hover:underline font-medium"
+                    >
                       Log in
                     </Link>
                   </div>
@@ -402,21 +507,20 @@ const Signup = () => {
         </div>
       </div>
       {showSuccessPopup && (
-              <Popup
-                type="success"
-                message="Login successfully!"
-                onClose={() => setShowSuccessPopup(false)}
-              />
-            )}
-      
-      
-            {showErrorPopup && (
-              <Popup
-                type="error"
-                message={errors}
-                onClose={() => setShowErrorPopup(false)}
-              />
-            )}
+        <Popup
+          type="success"
+          message={success ||"Register User Successfully!"}
+          onClose={() => setShowSuccessPopup(false)}
+        />
+      )}
+
+      {showErrorPopup && (
+        <Popup
+          type="error"
+          message={error || "Something went wrong!!"}
+          onClose={() => setShowErrorPopup(false)}
+        />
+      )}
     </div>
   );
 };

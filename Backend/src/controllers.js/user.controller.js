@@ -1,6 +1,6 @@
 import { User } from "../models/user.model.js";
 import { University } from "../models/university.model.js";
-import { Student } from "../models/student.model.js";
+import { Student } from "../models/Student.model.js";
 import { asyncHandler } from "../utils/asyncHandler.js";
 import { Faculty } from "../models/faculty.model.js";
 import uploadOnCloudinary from "../utils/cloudinary.js";
@@ -33,7 +33,9 @@ const registerUser = asyncHandler(async (req, res) => {
             universityName
         } = req.body;
 
-        const university = await University.findOne({ name: universityName.toLowerCase() });
+        let universityname = universityName?.toLowerCase();
+        
+        const university = await University.findOne({ name: universityname });
         if (!university) {
             return res.json({ status: 400, message: "University not registered" });
         }
@@ -45,7 +47,7 @@ const registerUser = asyncHandler(async (req, res) => {
 
         let departmentDoc = null;
         if (department) {
-            departmentDoc = await Department.findOne({ name: department.trim().toLowerCase() });
+            departmentDoc = await Department.findOne({ name: department.trim()?.toLowerCase() });
             if (!departmentDoc) {
                 return res.json({ status: 400, message: "Department not found" });
             }
@@ -100,17 +102,17 @@ const registerUser = asyncHandler(async (req, res) => {
         if (role === "student") {
             const existingStudent = await Student.findOne({ enrollmentNo });
             if (existingStudent) {
-                await User.deleteOne({ _id: user._id });
+                await User.deleteOne({ _id: user?._id });
                 return res.json({ status: 400, message: `Enrollment number ${enrollmentNo} already exists` });
             }
 
             if (!enrollmentNo) {
-                await User.deleteOne({ _id: user._id });
+                await User.deleteOne({ _id: user?._id });
                 return res.json({ status: 400, message: "Enrollment number is required for student" });
             }
 
             await Student.create({
-                user: user._id,
+                user: user?._id,
                 enrollmentNo
             });
         }
@@ -119,21 +121,21 @@ const registerUser = asyncHandler(async (req, res) => {
             if (!enrollmentNo) {
                 const existingFaculty = await Faculty.findOne({ employeeNo: enrollmentNo });
                 if (existingFaculty) {
-                    await User.deleteOne({ _id: user._id });
+                    await User.deleteOne({ _id: user?._id });
                     return res.json({ status: 400, message: `Employee number ${enrollmentNo} already exists` });
                 }
 
-                await User.deleteOne({ _id: user._id });
+                await User.deleteOne({ _id: user?._id });
                 return res.json({ status: 400, message: "Employee number is required for faculty" });
             }
 
             await Faculty.create({
-                user: user._id,
+                user: user?._id,
                 employeeNo: enrollmentNo
             });
         }
 
-        return res.status(201).json({ status: 201, message: "Registration successful", userId: user._id, role });
+        return res.status(201).json({ status: 201, message: "Registration successful", userId: user?._id, role });
     } catch (error) {
         console.error(error);
         return res.json({ status: 500, message: error.message || "Something went wrong" });
