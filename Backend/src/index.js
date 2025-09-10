@@ -13,9 +13,9 @@ const io = new Server(server, {
     cors: {
         origin: process.env.CORS_ORIGIN,
         methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-        credentials: true 
+        credentials: true
     },
-    pingInterval: 25000,  
+    pingInterval: 25000,
     pingTimeout: 60000
 });
 
@@ -23,7 +23,7 @@ const io = new Server(server, {
 setupSocket(io, app)
 app.set("io", io)
 
-const PORT = process.env.PORT || 5000;
+const PORT = process.env.PORT || 5001;
 
 connectDB().then(() => {
     app.on("error", (err) => {
