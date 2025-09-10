@@ -21,8 +21,8 @@ app.use(cookieParser())
 app.get('/health', (req, res) => res.json({ ok: true, message:"API working" }));
 
 
-// import questionRouter from "./src/routes/question.routes.js";
-// app.use("/api/v1/questions", questionRouter);
+import userRouter from "./src/routes/user.routes.js";
+app.use("/api/v1/users", userRouter);
 
 
 
