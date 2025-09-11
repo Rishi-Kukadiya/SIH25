@@ -20,10 +20,10 @@ const courseOfferingSchema = new mongoose.Schema({
     },
     section: {
         type: String
+    },
+    schedule: {
+        type: Object // { day: "Mon", time: "10-11", room: "101" }
     }
-    // schedule: {
-    //     type: Object // { day: "Mon", time: "10-11", room: "101" }
-    // }
 }, { timestamps: true });
 
 export const CourseOffering = mongoose.model("CourseOffering", courseOfferingSchema);

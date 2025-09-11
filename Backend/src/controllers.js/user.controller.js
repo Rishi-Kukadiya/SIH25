@@ -33,7 +33,9 @@ const registerUser = asyncHandler(async (req, res) => {
             universityName
         } = req.body;
 
-        const university = await University.findOne({ name: universityName.toLowerCase() });
+        let universityname = universityName?.toLowerCase();
+
+        const university = await University.findOne({ name: universityname });
         if (!university) {
             return res.json({ status: 400, message: "University not registered" });
         }
@@ -67,14 +69,14 @@ const registerUser = asyncHandler(async (req, res) => {
 
         const profilePicLocalPath = req.files?.profilePic[0]?.path;
 
-        if (!profilePicLocalPath) {
-            return res.json({ status: 400, message: "Avatar file is required." });
+        let profile;
+        if (profilePicLocalPath) {
+             profile = await uploadOnCloudinary(profilePicLocalPath);
+            if (!profile) {
+                return res.json({ status: 500, message: "Error while uploading on cloudinary" });
+            }
         }
 
-        const profilePic = await uploadOnCloudinary(profilePicLocalPath);
-        if (!profilePic) {
-            return res.json({ status: 500, message: "Error while uploading on cloudinary" });
-        }
 
         let parsedDob = null;
         if (dob) {
@@ -93,7 +95,7 @@ const registerUser = asyncHandler(async (req, res) => {
             role,
             dob: parsedDob,
             department: departmentDoc ? departmentDoc._id : null,
-            profilePic: profilePic?.secure_url,
+            profilePic: profile?.secure_url || null,
             university: university._id,
         });
 

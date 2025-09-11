@@ -22,7 +22,17 @@ export const verifyJWT = asyncHandler(async (req, res, next) => {
         next();
     } catch (error) {
         // console.log(error);
-        
+
         return res.json(new ApiError(401, error?.message || "Invalid access token"))
     }
 })
+
+export const facultyAuth = (req, res, next) => {
+    if (!req.user) {
+        return res.status(401).json({ status: 401, message: "Not authenticated" });
+    }
+    if (req.user.role !== "faculty") {
+        return res.status(403).json({ status: 403, message: "Access denied. Faculty only." });
+    }
+    next();
+};
