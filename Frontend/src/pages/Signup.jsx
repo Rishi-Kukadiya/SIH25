@@ -45,8 +45,8 @@ const Signup = () => {
     confirmPassword: "",
   });
 
-  const [errors, setErrors] = useState({});
-  const [success , setSuccess] = useState({});
+  const [errors, setErrors] = useState("");
+  const [success , setSuccess] = useState("");
   const navigate = useNavigate();
 
 
@@ -146,6 +146,7 @@ const Signup = () => {
       if (profilePicture) {
         data.append("profilePic", profilePicture);
       }
+
       dispatch(signupUser(data))
       .unwrap()
       .then((res) => {
@@ -182,22 +183,22 @@ const Signup = () => {
   if (loading) {
     return (
       <>
-        <p>Hii My Name is Rishi!!</p>
+        <p className="text-center py-10 text-sky-600">Creating Account...</p>
       </>
     );
   }
 
   return (
-    <div className="h-screen bg-[#f2f6fc] flex flex-col">
+    <div className="min-h-screen bg-gradient-to-r from-sky-50 to-blue-50 flex flex-col">
       <Navbar />
 
-      <div className="flex-1 flex items-center justify-center px-6 py-8 overflow-hidden">
-        <div className="w-full max-w-6xl bg-card rounded-2xl shadow-card overflow-hidden h-full max-h-[calc(100vh-8rem)]">
-          <div className="grid lg:grid-cols-2 gap-0 h-full">
+      <div className="flex-1 flex items-center justify-center px-6 py-8">
+        <div className="w-full max-w-6xl bg-white rounded-2xl shadow-md border border-sky-100">
+          <div className="grid lg:grid-cols-2 gap-0">
             {/* Form Section */}
-            <div className="p-8 lg:p-12 overflow-y-auto">
+            <div className="p-8 lg:p-12 max-h-[calc(100vh-10rem)] overflow-y-auto">
               <div className="max-w-md mx-auto">
-                <h1 className="text-3xl font-bold text-foreground mb-8">
+                <h1 className="text-3xl font-bold text-blue-900 mb-8">
                   Sign up
                 </h1>
 
@@ -205,7 +206,7 @@ const Signup = () => {
                   <div className="space-y-2">
                     <Label
                       htmlFor="fullName"
-                      className="text-sm font-medium text-foreground"
+                      className="text-sm font-medium text-gray-700"
                     >
                       Full Name
                     </Label>
@@ -216,20 +217,15 @@ const Signup = () => {
                       onChange={(e) =>
                         handleInputChange("fullName", e.target.value)
                       }
-                      className={`w-full bg-muted border-0 rounded-full px-4 py-3 text-foreground placeholder:text-muted-foreground focus:ring-2 focus:ring-primary `}
+                      className={`w-full bg-sky-50 border border-sky-200 rounded-full px-4 py-3 focus:ring-2 focus:ring-sky-400`}
                       placeholder="Enter your full name"
                     />
-                    {errors.fullName && (
-                      <p className="text-sm text-destructive">
-                        {errors.fullName}
-                      </p>
-                    )}
                   </div>
 
                   <div className="space-y-2">
                     <Label
                       htmlFor="rollNumber"
-                      className="text-sm font-medium text-foreground"
+                      className="text-sm font-medium text-gray-700"
                     >
                       Roll Number
                     </Label>
@@ -240,20 +236,15 @@ const Signup = () => {
                       onChange={(e) =>
                         handleInputChange("rollNumber", e.target.value)
                       }
-                      className={`w-full bg-muted border-0 rounded-full px-4 py-3 text-foreground placeholder:text-muted-foreground focus:ring-2 focus:ring-primary `}
+                      className={`w-full bg-sky-50 border border-sky-200 rounded-full px-4 py-3 focus:ring-2 focus:ring-sky-400`}
                       placeholder="Enter your roll number"
                     />
-                    {errors.rollNumber && (
-                      <p className="text-sm text-destructive">
-                        {errors.rollNumber}
-                      </p>
-                    )}
                   </div>
 
                   <div className="space-y-2">
                     <Label
                       htmlFor="email"
-                      className="text-sm font-medium text-foreground"
+                      className="text-sm font-medium text-gray-700"
                     >
                       Email Address
                     </Label>
@@ -264,16 +255,13 @@ const Signup = () => {
                       onChange={(e) =>
                         handleInputChange("email", e.target.value)
                       }
-                      className={`w-full bg-muted border-0 rounded-full px-4 py-3 text-foreground placeholder:text-muted-foreground focus:ring-2 focus:ring-primary `}
+                      className={`w-full bg-sky-50 border border-sky-200 rounded-full px-4 py-3 focus:ring-2 focus:ring-sky-400`}
                       placeholder="example@nirmauni.ac.in"
                     />
-                    {errors.email && (
-                      <p className="text-sm text-destructive">{errors.email}</p>
-                    )}
                   </div>
 
                   <div className="space-y-2">
-                    <Label className="text-sm font-medium text-foreground">
+                    <Label className="text-sm font-medium text-gray-700">
                       University
                     </Label>
                     <Select
@@ -282,31 +270,26 @@ const Signup = () => {
                       }
                     >
                       <SelectTrigger
-                        className={`w-full bg-muted border-0 rounded-full px-4 py-3 text-foreground focus:ring-2 focus:ring-primary `}
+                        className={`w-full bg-sky-50 border border-sky-200 rounded-full px-4 py-3 text-left focus:ring-2 focus:ring-sky-400`}
                       >
                         <SelectValue placeholder="Select your university" />
                       </SelectTrigger>
-                      <SelectContent className="bg-card border border-border rounded-lg shadow-soft">
+                      <SelectContent className="bg-white border-sky-200 rounded-lg shadow-lg">
                         {university.map((dept) => (
                           <SelectItem
                             key={dept.value}
                             value={dept.value}
-                            className="hover:bg-accent"
+                            className="hover:bg-sky-50"
                           >
                             {dept.label}
                           </SelectItem>
                         ))}
                       </SelectContent>
                     </Select>
-                    {errors.university && (
-                      <p className="text-sm text-destructive">
-                        {errors.university}
-                      </p>
-                    )}
                   </div>
 
                   <div className="space-y-2">
-                    <Label className="text-sm font-medium text-foreground">
+                    <Label className="text-sm font-medium text-gray-700">
                       Date of Birth
                     </Label>
                     <Popover>
@@ -314,9 +297,8 @@ const Signup = () => {
                         <Button
                           variant="outline"
                           className={cn(
-                            "w-full bg-muted border-0 rounded-full px-4 py-3 text-left font-normal text-foreground hover:bg-muted focus:ring-2 focus:ring-primary",
-                            !formData.dateOfBirth && "text-muted-foreground",
-                            errors.dateOfBirth && "ring-2 ring-destructive"
+                            "w-full bg-sky-50 border-sky-200 rounded-full px-4 py-3 text-left font-normal justify-between flex items-center hover:bg-sky-100",
+                            !formData.dateOfBirth && "text-gray-500"
                           )}
                         >
                           {formData.dateOfBirth ? (
@@ -328,7 +310,7 @@ const Signup = () => {
                         </Button>
                       </PopoverTrigger>
                       <PopoverContent
-                        className="w-auto p-0 bg-card border border-border rounded-lg shadow-soft"
+                        className="w-auto p-0 bg-white border-sky-200 rounded-lg shadow-lg"
                         align="start"
                       >
                         <Calendar
@@ -341,19 +323,14 @@ const Signup = () => {
                             date > new Date() || date < new Date("1900-01-01")
                           }
                           initialFocus
-                          className="p-3 pointer-events-auto"
+                          className="p-3"
                         />
                       </PopoverContent>
                     </Popover>
-                    {errors.dateOfBirth && (
-                      <p className="text-sm text-destructive">
-                        {errors.dateOfBirth}
-                      </p>
-                    )}
                   </div>
 
                   <div className="space-y-2">
-                    <Label className="text-sm font-medium text-foreground">
+                    <Label className="text-sm font-medium text-gray-700">
                       Profile Picture
                     </Label>
                     <div className="flex items-center space-x-4">
@@ -362,11 +339,11 @@ const Signup = () => {
                           <img
                             src={profilePreview}
                             alt="Profile preview"
-                            className="w-16 h-16 rounded-full object-cover border-2 border-border"
+                            className="w-16 h-16 rounded-full object-cover border-2 border-sky-200"
                           />
                         ) : (
-                          <div className="w-16 h-16 rounded-full bg-muted border-2 border-border flex items-center justify-center">
-                            <User className="w-8 h-8 text-muted-foreground" />
+                          <div className="w-16 h-16 rounded-full bg-sky-50 border-2 border-sky-200 flex items-center justify-center">
+                            <User className="w-8 h-8 text-gray-400" />
                           </div>
                         )}
                       </div>
@@ -382,7 +359,7 @@ const Signup = () => {
                           <Button
                             type="button"
                             variant="outline"
-                            className="w-full border-primary text-primary hover:bg-primary hover:text-primary-foreground cursor-pointer"
+                            className="w-full rounded-full border-2 border-sky-700 text-sky-700 px-4 py-3 hover:bg-sky-50 cursor-pointer"
                             asChild
                           >
                             <span className="flex items-center justify-center">
@@ -399,7 +376,7 @@ const Signup = () => {
                     <div className="space-y-2">
                       <Label
                         htmlFor="password"
-                        className="text-sm font-medium text-foreground"
+                        className="text-sm font-medium text-gray-700"
                       >
                         Password
                       </Label>
@@ -411,13 +388,13 @@ const Signup = () => {
                           onChange={(e) =>
                             handleInputChange("password", e.target.value)
                           }
-                          className={`w-full bg-muted border-0 rounded-full px-4 py-3 pr-12 text-foreground placeholder:text-muted-foreground focus:ring-2 focus:ring-primary`}
+                          className={`w-full bg-sky-50 border border-sky-200 rounded-full px-4 py-3 pr-12 focus:ring-2 focus:ring-sky-400`}
                           placeholder="Password"
                         />
                         <button
                           type="button"
                           onClick={() => setShowPassword(!showPassword)}
-                          className="absolute right-4 top-1/2 transform -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                          className="absolute right-4 top-1/2 transform -translate-y-1/2 text-sky-700 hover:text-blue-800"
                         >
                           {showPassword ? (
                             <EyeOff size={20} />
@@ -426,17 +403,12 @@ const Signup = () => {
                           )}
                         </button>
                       </div>
-                      {errors.password && (
-                        <p className="text-sm text-destructive">
-                          {errors.password}
-                        </p>
-                      )}
                     </div>
 
                     <div className="space-y-2">
                       <Label
                         htmlFor="confirmPassword"
-                        className="text-sm font-medium text-foreground"
+                        className="text-sm font-medium text-gray-700"
                       >
                         Confirm Password
                       </Label>
@@ -448,7 +420,7 @@ const Signup = () => {
                           onChange={(e) =>
                             handleInputChange("confirmPassword", e.target.value)
                           }
-                          className={`w-full bg-muted border-0 rounded-full px-4 py-3 pr-12 text-foreground placeholder:text-muted-foreground focus:ring-2 focus:ring-primary `}
+                          className={`w-full bg-sky-50 border border-sky-200 rounded-full px-4 py-3 pr-12 focus:ring-2 focus:ring-sky-400`}
                           placeholder="Confirm Password"
                         />
                         <button
@@ -456,7 +428,7 @@ const Signup = () => {
                           onClick={() =>
                             setShowConfirmPassword(!showConfirmPassword)
                           }
-                          className="absolute right-4 top-1/2 transform -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                          className="absolute right-4 top-1/2 transform -translate-y-1/2 text-sky-700 hover:text-blue-800"
                         >
                           {showConfirmPassword ? (
                             <EyeOff size={20} />
@@ -465,26 +437,21 @@ const Signup = () => {
                           )}
                         </button>
                       </div>
-                      {errors.confirmPassword && (
-                        <p className="text-sm text-destructive">
-                          {errors.confirmPassword}
-                        </p>
-                      )}
                     </div>
                   </div>
 
                   <Button
                     type="submit"
-                    className="w-full bg-gradient-primary hover:opacity-90 text-primary-foreground font-medium py-3 rounded-full transition-all duration-300 shadow-soft"
+                    className="w-full py-3 rounded-full bg-gradient-to-r from-sky-500 to-blue-600 hover:from-sky-600 hover:to-blue-700 text-white font-semibold transition"
                   >
                     Create Account
                   </Button>
 
-                  <div className="text-center">
-                    <span className="text-muted-foreground">or </span>
+                  <div className="text-center text-gray-600">
+                    <span>or </span>
                     <Link
                       to="/login"
-                      className="text-primary hover:underline font-medium"
+                      className="text-sky-700 hover:text-blue-800 hover:underline font-semibold"
                     >
                       Log in
                     </Link>
@@ -494,7 +461,7 @@ const Signup = () => {
             </div>
 
             {/* Illustration Section */}
-            <div className="hidden lg:flex items-center justify-center bg-accent/30 p-12">
+            <div className="hidden lg:flex items-center justify-center bg-gradient-to-r from-sky-100 to-blue-100 p-12">
               <div className="relative">
                 <img
                   src={signupIllustration}
@@ -506,6 +473,8 @@ const Signup = () => {
           </div>
         </div>
       </div>
+
+
       {showSuccessPopup && (
         <Popup
           type="success"
@@ -517,7 +486,7 @@ const Signup = () => {
       {showErrorPopup && (
         <Popup
           type="error"
-          message={error || "Something went wrong!!"}
+          message={errors || "Something went wrong!!"}
           onClose={() => setShowErrorPopup(false)}
         />
       )}

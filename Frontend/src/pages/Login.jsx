@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Link, useLocation } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { Eye, EyeOff } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -8,14 +8,14 @@ import { Checkbox } from "@/components/ui/checkbox";
 import Navbar from "@/components/Navbar";
 import loginIllustration from "@/assets/login-illustration.jpg";
 import { Popup } from "../Components/ui/popup";
-import { useDispatch , useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { loginUser } from "../Slices/Auth/Login.js";
-import { useNavigate } from "react-router-dom";
 
 const Login = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
-  const {loading} = useSelector((state) => state.Login)
+  const { loading } = useSelector((state) => state.Login);
+
   const [showPassword, setShowPassword] = useState(false);
   const [formData, setFormData] = useState({
     username: "",
@@ -51,32 +51,30 @@ const Login = () => {
       setShowErrorPopup(true);
       return false;
     }
-
     if (!formData.password) {
       setErrors("Password is required");
       setShowErrorPopup(true);
       return false;
     }
-
-    setErrors(""); 
+    setErrors("");
     return true;
   };
 
   const handleSubmit = (e) => {
     e.preventDefault();
     if (validateForm()) {
-        const data = new FormData();
-        data.append("email" , formData.username);
-        data.append("password" , formData.password);
+      const data = new FormData();
+      data.append("email", formData.username);
+      data.append("password", formData.password);
 
-        dispatch(loginUser(data))
+      dispatch(loginUser(data))
         .unwrap()
-        .then((res) =>{
+        .then((res) => {
           setSuccess(res.message);
           setShowSuccessPopup(true);
-          navigate('/' , {state : {message : res.message}});
+          navigate("/", { state: { message: res.message } });
         })
-        .catch((error) =>{
+        .catch((error) => {
           setErrors(error);
           setShowErrorPopup(true);
         });
@@ -85,38 +83,33 @@ const Login = () => {
 
   const handleInputChange = (field, value) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
-
-    if (errors) {
-      setErrors("");
-    }
+    if (errors) setErrors("");
   };
 
-  if(loading){
-    return(
-      <>
-        <p>This is Shimming effect!!</p>
-      </>
-    )
+  if (loading) {
+    return <p className="text-center py-10 text-sky-600">Loading...</p>;
   }
 
   return (
-    <div className="h-screen bg-[#f2f6fc] flex flex-col">
+    <div className="min-h-screen bg-gradient-to-r from-sky-50 to-blue-50 flex flex-col">
       <Navbar />
 
       <div className="flex-1 flex items-center justify-center px-6 py-8">
-        <div className="w-full max-w-6xl bg-card rounded-2xl shadow-card overflow-hidden">
+        <div className="w-full max-w-6xl bg-white rounded-2xl shadow-md border border-sky-100 overflow-hidden">
           <div className="grid lg:grid-cols-2 gap-0">
             {/* Form Section */}
             <div className="p-8 lg:p-12">
               <div className="max-w-md mx-auto">
-                <h1 className="text-3xl font-bold text-foreground mb-8">
+                <h1 className="text-3xl font-bold text-blue-900 mb-8">
                   Log in
                 </h1>
 
                 <form onSubmit={handleSubmit} className="space-y-6">
                   {/* Username */}
                   <div className="space-y-2">
-                    <Label htmlFor="username">Username</Label>
+                    <Label htmlFor="username" className="text-gray-700">
+                      Username
+                    </Label>
                     <Input
                       id="username"
                       type="text"
@@ -124,14 +117,16 @@ const Login = () => {
                       onChange={(e) =>
                         handleInputChange("username", e.target.value)
                       }
-                      className="w-full bg-muted border-0 rounded-full px-4 py-3"
+                      className="w-full bg-sky-50 border border-sky-200 rounded-full px-4 py-3 focus:ring-2 focus:ring-sky-400"
                       placeholder="Enter your username"
                     />
                   </div>
 
                   {/* Password */}
                   <div className="space-y-2">
-                    <Label htmlFor="password">Password</Label>
+                    <Label htmlFor="password" className="text-gray-700">
+                      Password
+                    </Label>
                     <div className="relative">
                       <Input
                         id="password"
@@ -140,19 +135,15 @@ const Login = () => {
                         onChange={(e) =>
                           handleInputChange("password", e.target.value)
                         }
-                        className="w-full bg-muted border-0 rounded-full px-4 py-3 pr-12"
+                        className="w-full bg-sky-50 border border-sky-200 rounded-full px-4 py-3 pr-12 focus:ring-2 focus:ring-sky-400"
                         placeholder="Enter your password"
                       />
                       <button
                         type="button"
                         onClick={() => setShowPassword(!showPassword)}
-                        className="absolute right-4 top-1/2 transform -translate-y-1/2"
+                        className="absolute right-4 top-1/2 transform -translate-y-1/2 text-sky-700 hover:text-blue-800"
                       >
-                        {showPassword ? (
-                          <EyeOff size={20} />
-                        ) : (
-                          <Eye size={20} />
-                        )}
+                        {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
                       </button>
                     </div>
                   </div>
@@ -167,24 +158,32 @@ const Login = () => {
                           handleInputChange("rememberMe", checked)
                         }
                       />
-                      <Label htmlFor="remember">Remember Me</Label>
+                      <Label htmlFor="remember" className="text-gray-700">
+                        Remember Me
+                      </Label>
                     </div>
                     <Link
                       to="/forgot-password"
-                      className="text-sm hover:underline"
+                      className="text-sm text-sky-700 hover:text-blue-800 hover:underline"
                     >
                       Forgot Password?
                     </Link>
                   </div>
 
                   {/* Submit */}
-                  <Button type="submit" className="w-full rounded-full">
+                  <Button
+                    type="submit"
+                    className="w-full rounded-full bg-gradient-to-r from-sky-500 to-blue-600 hover:from-sky-600 hover:to-blue-700 text-white transition"
+                  >
                     Log in
                   </Button>
 
-                  <div className="text-center">
+                  <div className="text-center text-gray-600">
                     <span>or </span>
-                    <Link to="/signup" className="text-primary hover:underline">
+                    <Link
+                      to="/signup"
+                      className="text-sky-700 hover:text-blue-800 hover:underline"
+                    >
                       Sign up
                     </Link>
                   </div>
@@ -193,17 +192,18 @@ const Login = () => {
             </div>
 
             {/* Illustration Section */}
-            <div className="hidden lg:flex items-center justify-center bg-accent/30 p-12">
+            <div className="hidden lg:flex items-center justify-center bg-gradient-to-r from-sky-100 to-blue-100 p-12">
               <img
                 src={loginIllustration}
                 alt="Login illustration"
-                className="w-full h-auto max-w-md rounded-lg"
+                className="w-full h-auto max-w-md rounded-lg shadow-sm"
               />
             </div>
           </div>
         </div>
       </div>
 
+      {/* Popups */}
       {showSuccessPopup && (
         <Popup
           type="success"
@@ -211,7 +211,6 @@ const Login = () => {
           onClose={() => setShowSuccessPopup(false)}
         />
       )}
-
       {showErrorPopup && (
         <Popup
           type="error"
