@@ -8,6 +8,7 @@ import { User } from '../models/user.model.js';
 import { Assessment } from '../models/Assessment.model.js';
 import { Faculty } from "../models/faculty.model.js";
 import { Course } from "../models/Course.model.js";
+import { stat } from "fs";
 
 // -------------------- DASHBOARD --------------------
 const dashboard = asyncHandler(async (req, res) => {
@@ -16,12 +17,18 @@ const dashboard = asyncHandler(async (req, res) => {
         if (!faculty) return res.json({ status: 404, message: "Faculty not found" });
 
         const facultyId = faculty._id;
+        // console.log(facultyId);
+
 
         const courses = await CourseOffering.find({ faculty: facultyId })
             .populate('course', 'courseCode courseName credits')
             .lean();
 
+
+
         const courseIds = courses.map(c => c._id);
+        // console.log(courseIds);
+
 
         // Count unique students across all offerings
         const studentIds = await Enrollment.distinct("student", { offering: { $in: courseIds } });
@@ -186,4 +193,70 @@ const addAttendance = asyncHandler(async (req, res) => {
 
 
 
-export { dashboard, addAttendance };
+const updateSpecialization = asyncHandler(async (req, res) => {
+    try {
+        const { specialization } = req.body;
+
+        if (!specialization) {
+            return res.status(400).json({ status: 400, message: "Specialization is required." });
+        }
+
+        // Update faculty in one go
+        const updatedFaculty = await Faculty.findOneAndUpdate(
+            { user: req.user._id },
+            { $set: { specialization } },
+            { new: true } 
+        )
+
+        if (!updatedFaculty) {
+            return res.status(404).json({ status: 404, message: "Faculty not found" });
+        }
+
+        return res.status(200).json({
+            status: 200,
+            message: "Specialization updated successfully",
+            data: updatedFaculty
+        });
+
+    } catch (error) {
+        console.error(error);
+        return res.status(500).json({ status: 500, message: error.message || "Internal server error" });
+    }
+});
+
+
+const updateDesignation = asyncHandler(async (req, res) => {
+    try {
+        const { designation } = req.body;
+
+        if (!designation) {
+            return res.status(400).json({ status: 400, message: "Designation is required." });
+        }
+
+        // Update faculty based on logged-in user
+        const updatedFaculty = await Faculty.findOneAndUpdate(
+            { user: req.user._id },
+            { $set: { designation } },
+            { new: true } // return updated doc
+        ).select("-password -refreshToken"); // optional cleanup
+
+        if (!updatedFaculty) {
+            return res.status(404).json({ status: 404, message: "Faculty not found" });
+        }
+
+        return res.status(200).json({
+            status: 200,
+            message: "Designation updated successfully",
+            data: updatedFaculty
+        });
+
+    } catch (error) {
+        console.error(error);
+        return res.status(500).json({ status: 500, message: error.message || "Internal server error" });
+    }
+});
+
+
+
+
+export { dashboard, addAttendance , updateSpecialization , updateDesignation };

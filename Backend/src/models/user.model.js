@@ -19,7 +19,8 @@ const userSchema = new mongoose.Schema({
         required: [true, "Password is required"],
     },
     profilePic: {
-        type: String
+        type: String,
+        default:"https://res.cloudinary.com/dotjcgaai/image/upload/v1757675840/default-avatar-icon-of-social-media-user-vector_qybelz.jpg"
     },
     role: {
         type: String,
@@ -27,13 +28,15 @@ const userSchema = new mongoose.Schema({
         required: true
     },
     phone: {
-        type: String
+        type: String,
+        default: ""
     },
     refreshToken: {
         type: String
     },
     dob: {
-        type: Date
+        type: Date,
+        default:null
     },
     department: {
         type: mongoose.Schema.Types.ObjectId,

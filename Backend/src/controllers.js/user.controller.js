@@ -4,12 +4,14 @@ import { Student } from "../models/student.model.js";
 import { asyncHandler } from "../utils/asyncHandler.js";
 import { Faculty } from "../models/faculty.model.js";
 import uploadOnCloudinary from "../utils/cloudinary.js";
+import { deleteImageFromCloudinary } from "../utils/cloudinary.js";
 import { Department } from "../models/Department.model.js";
+import jwt from "jsonwebtoken";
 
 const generateAccessAndRefreshTokens = async (userId) => {
     const user = await User.findById(userId);
     if (!user) {
-        return { error: true, status: 500, message: "Error while generating tokens" };
+        return res.json({ error: true, status: 500, message: "Error while generating tokens" });
     }
 
     const accessToken = await user.generateAccessToken();
@@ -34,7 +36,7 @@ const registerUser = asyncHandler(async (req, res) => {
         } = req.body;
 
         let universityname = universityName?.toLowerCase();
-        
+
         const university = await University.findOne({ name: universityname });
         if (!university) {
             return res.json({ status: 400, message: "University not registered" });
@@ -71,7 +73,7 @@ const registerUser = asyncHandler(async (req, res) => {
 
         let profile;
         if (profilePicLocalPath) {
-             profile = await uploadOnCloudinary(profilePicLocalPath);
+            profile = await uploadOnCloudinary(profilePicLocalPath);
             if (!profile) {
                 return res.json({ status: 500, message: "Error while uploading on cloudinary" });
             }
@@ -197,4 +199,209 @@ const loginUser = asyncHandler(async (req, res) => {
     }
 });
 
-export { registerUser, loginUser };
+
+const logoutUser = asyncHandler(async (req, res) => {
+    const updatedUser = await User.findByIdAndUpdate(
+        req.user._id,
+        {
+            $unset: { refreshToken: "" }
+        },
+        { new: true }
+    );
+
+    console.log("Updated user after logout:", updatedUser);
+
+    const options = {
+        httpOnly: true,
+        secure: true
+    };
+
+    return res
+        .status(200)
+        .clearCookie("accessToken", options)
+        .clearCookie("refreshToken", options)
+        .json({ status: 200, message: "User loggedOut successfully" });
+});
+
+
+
+const refreshAccessToken = asyncHandler(async (req, res) => {
+    const incommingRefreshToken = req.cookies.refreshToken || req.body.refreshToken;
+    if (!incommingRefreshToken) {
+        return res.json({ status: 401, message: "Unauthorized request" })
+    }
+    try {
+        const decodedToken = jwt.verify(incommingRefreshToken, process.env.REFRESH_TOKEN_SECRET);
+        const user = await User.findById(decodedToken?._id);
+        if (!user) {
+            return res.json(new ApiError(401, "Invalid refreshToken"));
+        }
+        if (incommingRefreshToken != user.refreshToken) {
+            // console.log(incommingRefreshToken);
+            return res.json(new ApiError(401, "Refresh token is expired or used"));
+        }
+        const options = {
+            httpOnly: true,
+            secure: true
+        }
+        const { accessToken, refreshToken: newRefreshToken } = await generateAccessAndRefreshTokens(user._id);
+
+
+        return res
+            .status(200)
+            .cookie("accessToken", accessToken, options)
+            .cookie("refreshToken", newRefreshToken, options)
+            .json({
+                status: 200,
+                accessToken,
+                refreshToken: newRefreshToken,
+                message: "Access token refreshed Successfully"
+            }
+            );
+
+
+    } catch (error) {
+        return res.json({ status: 401, message: error?.message || "invalid refresh token" })
+
+    }
+})
+
+
+
+const editFullName = asyncHandler(async (req, res) => {
+
+    const userId = req?.user?._id;
+    const { fullName } = req.body;
+    console.log(userId, fullName);
+
+    if (!fullName) {
+        res.json({ status: 400, message: "Fullname is required." });
+    }
+
+    await User.findByIdAndUpdate(userId, { $set: { fullName: fullName } });
+
+
+    return res.status(200).json({ status: 200, message: "fullName updated successfully." })
+})
+
+
+const updateProfilePic = asyncHandler(async (req, res) => {
+    try {
+        const userId = req.user?._id;
+        const profilePicLocalPath = req.files?.profilePic?.[0]?.path;
+
+        if (!profilePicLocalPath) {
+            return res.json({ status: 400, message: "Profile picture file is required." });
+        }
+        const profilePic = await uploadOnCloudinary(profilePicLocalPath);
+
+        if (!profilePic) {
+            return res.json({ status: 500, message: "Error while uploading profile picture on cloudinary" });
+        }
+
+        const user = await User.findById(userId).select("profilePic");
+
+        if (user?.profilePic) {
+            deleteImageFromCloudinary(user.profilePic);
+        }
+
+        user.profilePic = profilePic.secure_url;
+        const updatedUser = await user.save();
+
+        return res.json(
+            { status: 200, updatedUser, message: "Profile picture updated successfully." }
+        );
+
+    } catch (error) {
+        console.log(error.message);
+        return res.json(
+            { status: 500, message: "Error while updating profile picture." }
+        );
+    }
+});
+
+
+const removeProfilePic = asyncHandler(async (req, res) => {
+    try {
+        const userId = req.user?._id;
+
+        const user = await User.findById(userId).select("profilePic");
+
+        if (!user) {
+            return res.json(new ApiError(404, "User not found"));
+        }
+        const DEFAULT_PROFILE_PIC = "https://res.cloudinary.com/dotjcgaai/image/upload/v1757675840/default-avatar-icon-of-social-media-user-vector_qybelz.jpg"
+        if (user.profilePic && user.profilePic !== DEFAULT_PROFILE_PIC) {
+            deleteImageFromCloudinary(user.profilePic);
+        }
+
+        user.profilePic = DEFAULT_PROFILE_PIC;
+
+        const updatedUser = await user.save();
+
+        return res.json(
+            { status: 200, updatedUser, message: "Profile picture removed successfully and set to default." }
+        );
+
+    } catch (error) {
+        console.log(error.message);
+        return res.json(
+            { status: 500, message: "Error while removing profile picture." }
+        );
+    }
+});
+
+
+const updatePhone = asyncHandler(async (req, res) => {
+    try {
+        const { phone } = req.body;
+        if (!phone) {
+            return res.json({ status: 400, message: "Phone is required." })
+        }
+        await User.findByIdAndUpdate(req.user._id, { $set: { phone: phone } });
+
+        return res.json({ status: 200, message: "Phone number updated successfully" })
+    } catch (error) {
+        console.log(error.message);
+        return res.json(
+            { status: 500, message: "Error while removing profile picture." }
+        );
+
+    }
+}
+)
+
+
+const updateDob = asyncHandler(async (req, res) => {
+    try {
+        const { dob } = req.body;
+
+        if (!dob) {
+            return res.status(400).json({ status: 400, message: "DOB is required." });
+        }
+
+        const parsedDob = new Date(dob);
+        if (isNaN(parsedDob.getTime())) {
+            return res.status(400).json({ status: 400, message: "Invalid DOB format." });
+        }
+
+        const updatedUser = await User.findByIdAndUpdate(
+            req.user._id,
+            { $set: { dob: parsedDob } },
+            { new: true, runValidators: true }
+        ).select(" fullName dob");
+
+        if (!updatedUser) {
+            return res.status(404).json({ status: 404, message: "User not found." });
+        }
+
+        return res.json({ status: 200, message: "DOB updated successfully", data: updatedUser });
+
+    } catch (error) {
+        console.error(error.message);
+        return res.status(500).json({ status: 500, message: error || "Error while updating DOB." });
+    }
+});
+
+
+export { registerUser, loginUser, editFullName, logoutUser, refreshAccessToken, updateProfilePic, removeProfilePic, updatePhone, updateDob };
