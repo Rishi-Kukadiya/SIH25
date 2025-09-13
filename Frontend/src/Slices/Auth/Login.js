@@ -13,13 +13,14 @@ export const loginUser = createAsyncThunk(
           headers: {
             "Content-Type": "application/json",
           },
+          withCredentials : true 
         }
       );
 
+      sessionStorage.setItem("username" , response.data.detailedUser.fullName)
       if (response.data.status !== 200) {
         return rejectWithValue(response.data.message || "Login failed");
       }
-
       return response.data;
     } catch (error) {
       return rejectWithValue(
@@ -42,6 +43,7 @@ const authSlice = createSlice({
       state.user = null;
       state.error = null;
     },
+
   },
   extraReducers: (builder) => {
     builder

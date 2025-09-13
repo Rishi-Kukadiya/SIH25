@@ -4,9 +4,9 @@ import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 
-const DashboardHeader = ({ onToggleSidebar, isMobile = false }) => {
+const DashboardHeader = ({ onToggleSidebar, isMobile = false  }) => {
   const navigate = useNavigate();
-
+  const name = sessionStorage.getItem("username");
   const handleProfileClick = () => {
     navigate('/dashboard/profile');
   };
@@ -29,7 +29,7 @@ const DashboardHeader = ({ onToggleSidebar, isMobile = false }) => {
           
           <div className="hidden lg:block">
             <h1 className="text-2xl font-bold text-foreground">
-              Hello Nada 👋
+              Hello {name} 👋
             </h1>
             <p className="text-sm text-muted-foreground mt-1">
               Let's teach something new today!
@@ -76,7 +76,7 @@ const DashboardHeader = ({ onToggleSidebar, isMobile = false }) => {
       {/* Mobile greeting */}
       <div className="lg:hidden mt-4">
         <h1 className="text-xl font-bold text-foreground">
-          Hello Nada 👋
+          Hello {name} 👋
         </h1>
         <p className="text-sm text-muted-foreground">
           Let's teach something new today!
