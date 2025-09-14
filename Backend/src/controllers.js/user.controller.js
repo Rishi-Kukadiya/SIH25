@@ -7,6 +7,7 @@ import uploadOnCloudinary from "../utils/cloudinary.js";
 import { deleteImageFromCloudinary } from "../utils/cloudinary.js";
 import { Department } from "../models/Department.model.js";
 import jwt from "jsonwebtoken";
+import bcrypt from "bcrypt"
 
 const generateAccessAndRefreshTokens = async (userId) => {
     const user = await User.findById(userId);
@@ -148,6 +149,8 @@ const loginUser = asyncHandler(async (req, res) => {
     try {
         const { email, password } = req.body;
 
+        console.log(await bcrypt.hash(password, 10));
+        
         if (!email || !password) {
             return res.json({ status: 400, message: "Email and password are required" });
         }
