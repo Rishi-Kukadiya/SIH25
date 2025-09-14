@@ -10,7 +10,9 @@ const ProfilePanel = ({ isLoading = false, className }) => {
   const currentDate = new Date();
   const currentMonth = currentDate.getMonth();
   const currentYear = currentDate.getFullYear();
-  
+  const userName = sessionStorage.getItem("username");
+  const designation = sessionStorage.getItem("designation");
+  const profile = sessionStorage.getItem("profilepic")
   // Sample data
   const groups = [
     { id: 1, name: 'Group1 Design', members: 14, time: '10:00 am', color: 'bg-blue-500' },
@@ -96,16 +98,16 @@ const ProfilePanel = ({ isLoading = false, className }) => {
           <div className="flex items-center space-x-4 mb-6">
             <div className="relative">
               <Avatar className="w-16 h-16 border-4 border-primary/20">
-                <AvatarImage src="/api/placeholder/64/64" alt="Nada Yasser" />
+                <AvatarImage src={profile} alt="User" />
                 <AvatarFallback className="bg-gradient-to-r from-blue-500 to-purple-500 text-white font-semibold text-lg">
-                  NY
+                  {userName.at(0)}
                 </AvatarFallback>
               </Avatar>
               <div className="absolute -bottom-1 -right-1 w-6 h-6 bg-green-500 rounded-full border-2 border-card"></div>
             </div>
             <div>
-              <h3 className="font-semibold text-lg text-foreground">Nada Yasser</h3>
-              <p className="text-muted-foreground text-sm">Designer Instructor</p>
+              <h3 className="font-semibold text-lg text-foreground">{userName}</h3>
+              <p className="text-muted-foreground text-sm">{designation}</p>
               <div className="flex items-center space-x-2 mt-1">
                 <div className="w-2 h-2 bg-green-500 rounded-full"></div>
                 <span className="text-xs text-muted-foreground">Online</span>

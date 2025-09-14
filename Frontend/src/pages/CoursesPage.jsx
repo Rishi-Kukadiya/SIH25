@@ -1,62 +1,28 @@
-﻿import React from 'react';
-import { motion } from 'framer-motion';
-import { useNavigate } from 'react-router-dom';
-import CourseCard from '../components/CourseCard';
+﻿import React from "react";
+import { motion } from "framer-motion";
+import { useNavigate } from "react-router-dom";
+import CourseCard from "../components/CourseCard";
 
-const CoursesPage = () => {
+const capitalized = (str) => {
+  return str
+    .split(" ") // split into words
+    .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+    .join(" ");
+};
+
+const CoursesPage = ({ data }) => {
   const navigate = useNavigate();
+  const courses = data.courses.map((c) => {
+    return {
+      id : c._id,
+      courseCode: (c.course.courseCode),
+      courseName: capitalized(c.course.courseName),
+      credits: (c.course.credits),
+      semester: (c.semester),
+      academicYear: c.academicYear,
+    };
+  });
 
-  // Sample course data
-  const courses = [
-    {
-      id: 1,
-      courseCode: 'CS101',
-      courseName: 'Introduction to Computer Science',
-      credits: 3,
-      semester: 1,
-      academicYear: '2024-25'
-    },
-    {
-      id: 2,
-      courseCode: 'MATH201',
-      courseName: 'Calculus and Linear Algebra',
-      credits: 4,
-      semester: 2,
-      academicYear: '2024-25'
-    },
-    {
-      id: 3,
-      courseCode: 'PHY301',
-      courseName: 'Physics for Engineers',
-      credits: 3,
-      semester: 3,
-      academicYear: '2024-25'
-    },
-    {
-      id: 4,
-      courseCode: 'CS302',
-      courseName: 'Data Structures and Algorithms',
-      credits: 4,
-      semester: 4,
-      academicYear: '2024-25'
-    },
-    {
-      id: 5,
-      courseCode: 'EE401',
-      courseName: 'Digital Electronics',
-      credits: 3,
-      semester: 5,
-      academicYear: '2024-25'
-    },
-    {
-      id: 6,
-      courseCode: 'CS501',
-      courseName: 'Database Management Systems',
-      credits: 3,
-      semester: 6,
-      academicYear: '2024-25'
-    }
-  ];
 
   const handleViewDetails = (courseId) => {
     navigate(`/dashboard/courses/course/${courseId}`);
@@ -92,9 +58,9 @@ const CoursesPage = () => {
               key={course.id}
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ 
-                duration: 0.5, 
-                delay: index * 0.1 
+              transition={{
+                duration: 0.5,
+                delay: index * 0.1,
               }}
             >
               <CourseCard

@@ -7,23 +7,29 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { motion } from "framer-motion";
-
-const ProfilePage = () => {
+const ProfilePage = ({data}) => {
+  const designation = sessionStorage.getItem("designation");
+  const username = sessionStorage.getItem("username");
+  const department = sessionStorage.getItem("department");
+  const empid = sessionStorage.getItem("empid");
+  const email = sessionStorage.getItem("email");
+  const phone = sessionStorage.getItem("phone");
+  const dob = sessionStorage.getItem("dob");
   const [isEditing, setIsEditing] = useState(false);
   const [profileData, setProfileData] = useState({
-    name: "Hang Minh Nguyen",
-    role: "UI - UX Designer",
-    department: "Product Department",
-    staffId: "SJ53862",
-    phone: "0913 854 235",
-    email: "hangntm@sjlabel.com",
-    gender: "Female",
-    identifyCode: "3234611342",
-    nationality: "Vietnam",
-    language: "Vietnamese, English",
-    dateOfBirth: "2005-11-19T00:00:00.000Z",
-    hometown: "Hai Duong city",
-    religion: "None",
+    name: username || "User",
+    role: designation || "Faculty",
+    department: department || "CSE",
+    staffId: empid || "BEC210",
+    phone: phone || "812828803",
+    email: email || "abc@gamil.com",
+    gender: "Male",
+    identifyCode: empid || "123456789",
+    nationality: "India",
+    language : "English , Hindi",
+    dateOfBirth:  dob || "2005-11-19T00:00:00.000Z",
+    hometown: "Ahmedabad",
+    religion: "None", 
     maritalStatus: "Single",
     permanentAddress: "5. Nguyen Chi Thanh Street, Tan Binh Ward, Hai Duong",
     currentAddress: "29. Nguyen Ngoc Doan Street, Dong Da District, Ha Noi",

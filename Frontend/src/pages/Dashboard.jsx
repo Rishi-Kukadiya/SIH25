@@ -3,7 +3,7 @@ import { useLocation, useNavigate } from "react-router-dom";
 import FacultySidebar from "../Components/FacultySidebar";
 import DashboardHeader from "../Components/DashboardHeader";
 import DashboardHome from "../Components/DashboardHome";
-import ProfilePage from "@/pages/ProfilePage";
+import ProfilePage from "./ProfilePage.jsx";
 import CoursesPage from "@/pages/CoursesPage";
 import CourseDetailPage from "@/pages/CourseDetailPage";
 import Timetable from "@/pages/Timetable";
