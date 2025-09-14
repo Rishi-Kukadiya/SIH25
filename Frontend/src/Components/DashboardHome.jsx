@@ -1,48 +1,54 @@
-import React, { useState, useEffect, useRef } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import LectureCard from './LectureCard';
-import ProfilePanel from './ProfilePanel';
-import { SkeletonCard } from './Skeleton';
-import { BookOpen, Users, CheckCircle, Award } from "lucide-react";
+import React, { useState, useEffect, useRef } from "react";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import LectureCard from "./LectureCard";
+import ProfilePanel from "./ProfilePanel";
+import { SkeletonCard } from "./Skeleton";
+import {
+  BookOpen,
+  Users,
+  CheckCircle,
+  Award,
+} from "lucide-react";
 
-const DashboardHome = () => {
-  const [isLoading, setIsLoading] = useState(true);
-  const [courses, setCourses] = useState([]);
-  const [students, setStudents] = useState([]);
-  const [totalAttendance, setTotalAttendance] = useState(0);
-  const [totalClasses, setTotalClasses] = useState(0);
-  const [totalMarks, setTotalMarks] = useState(0);
-  const [totalExams, setTotalExams] = useState(0);
+const DashboardHome = ({ data }) => {
+  console.log(data.courses);
+  const courses = data?.overallStats?.coursesCount || 0;
+  const students = data?.overallStats?.studentsCount || 0;
+  const totalAttendance = data?.overallStats?.avgAttendance || 0;
+  const totalMarks = data?.overallStats?.avgMarks || 0;
 
-  const sampleLectures = [
-    { id: 1, title: 'UX Research Class', type: 'Lecture', subject: 'Assignment', time: '10:44 am', students: 45, status: 'upcoming', location: 'Room 204', avatars: ['JD', 'AS', 'MK', 'RT', 'NG'] },
-    { id: 2, title: 'App Development Course', type: 'Report', subject: 'Classroom', time: '10:44 am', students: 32, status: 'ongoing', location: 'Lab 3', avatars: ['AB', 'CD', 'EF'] },
-    { id: 3, title: 'Figma UI/UX Workshop', type: 'Lecture', subject: 'Evaluation', time: '10:44 am', students: 28, status: 'upcoming', location: 'Design Studio', avatars: ['GH', 'IJ', 'KL', 'MN'] },
-    { id: 4, title: 'Advanced React Session', type: 'Lecture', subject: 'Workshop', time: '2:00 pm', students: 30, status: 'upcoming', location: 'Lab 1', avatars: ['OP', 'QR'] }
-  ];
+    let sampleLec = [];
 
-  useEffect(() => {
-    const timer = setTimeout(() => setIsLoading(false), 2000);
-    return () => clearTimeout(timer);
-  }, []);
+  if (Array.isArray(data.courses)) {
+      for (const course of data.courses) {
+          let obj = {};
+          obj.id = course._id;
+          obj.academicYear = course.academicYear;
+          obj.avgAttendance = course.avgAttendance;
+          obj.avgMarks = course.avgMarks;
+          obj.courseCode = course.course.courseCode;
+          obj.courseName = course.course.courseName;
+          obj.credits = course.course.credits;
+          obj.time = course.schedule.time;
+          obj.day = course.schedule.day;
+          obj.room = course.schedule.room;
+          obj.section = course.section;
+          obj.semester = course.semester;
+          obj.studentsCount = course.studentsCount;
+          obj.students = course.students;
+          sampleLec.push(obj);
+      }
+  }
 
-  useEffect(() => {
-    const simulateFetch = setTimeout(() => {
-      setCourses([{ id: 1 }, { id: 2 }, { id: 3 }, { id: 4 }]);
-      setStudents(Array.from({ length: 120 }, (_, i) => ({ id: i + 1 })));
-      setTotalAttendance(860);
-      setTotalClasses(1000);
-      setTotalMarks(7450);
-      setTotalExams(9200);
-    }, 300);
-    return () => clearTimeout(simulateFetch);
-  }, []);
+  console.log(sampleLec);
+
+  
 
   const StatsGridSection = () => {
-    const courseCount = courses.length;
-    const studentCount = students.length;
-    const avgAttendance = totalClasses > 0 ? Math.min(100, Math.max(0, (totalAttendance / totalClasses) * 100)) : 0;
-    const avgMarks = totalExams > 0 ? Math.min(100, Math.max(0, (totalMarks / totalExams) * 100)) : 0;
+    const courseCount = courses;
+    const studentCount = students;
+    const avgAttendance = totalAttendance;
+    const avgMarks = totalMarks;
 
     return (
       <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-6">
@@ -55,7 +61,9 @@ const DashboardHome = () => {
             </div>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-gray-800">{courseCount}</div>
+            <div className="text-2xl font-bold text-gray-800">
+              {courseCount}
+            </div>
           </CardContent>
         </Card>
 
@@ -68,7 +76,9 @@ const DashboardHome = () => {
             </div>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-gray-800">{studentCount}</div>
+            <div className="text-2xl font-bold text-gray-800">
+              {studentCount}
+            </div>
           </CardContent>
         </Card>
 
@@ -81,9 +91,14 @@ const DashboardHome = () => {
             </div>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-gray-800 mb-3">{avgAttendance.toFixed(1)}%</div>
+            <div className="text-2xl font-bold text-gray-800 mb-3">
+              {avgAttendance.toFixed(1)}%
+            </div>
             <div className="h-3 w-full rounded-full bg-gray-200 overflow-hidden shadow-inner">
-              <div className="h-full bg-green-500 rounded-full transition-all duration-700" style={{ width: `${avgAttendance}%` }} />
+              <div
+                className="h-full bg-green-500 rounded-full transition-all duration-700"
+                style={{ width: `${avgAttendance}%` }}
+              />
             </div>
           </CardContent>
         </Card>
@@ -97,9 +112,14 @@ const DashboardHome = () => {
             </div>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-gray-800 mb-3">{avgMarks.toFixed(1)}%</div>
+            <div className="text-2xl font-bold text-gray-800 mb-3">
+              {avgMarks.toFixed(1)}%
+            </div>
             <div className="h-3 w-full rounded-full bg-gray-200 overflow-hidden shadow-inner">
-              <div className="h-full bg-blue-500 rounded-full transition-all duration-700" style={{ width: `${avgMarks}%` }} />
+              <div
+                className="h-full bg-blue-500 rounded-full transition-all duration-700"
+                style={{ width: `${avgMarks}%` }}
+              />
             </div>
           </CardContent>
         </Card>
@@ -107,36 +127,39 @@ const DashboardHome = () => {
     );
   };
 
+
   const YourLecturesSection = () => {
     const containerRef = useRef(null);
-    const [maxHeight, setMaxHeight] = useState('auto');
+    const [maxHeight, setMaxHeight] = useState("auto");
     const [enableScroll, setEnableScroll] = useState(false);
     const [scrolling, setScrolling] = useState(false);
-  
+    const isLoading = false;
     useEffect(() => {
       if (containerRef.current) {
         const children = Array.from(containerRef.current.children);
         if (children.length > 3) {
           const height =
-            children.slice(0, 3).reduce((acc, child) => acc + child.offsetHeight, 0) + 16; // spacing
+            children
+              .slice(0, 3)
+              .reduce((acc, child) => acc + child.offsetHeight, 0) + 16; // spacing
           setMaxHeight(height);
           setEnableScroll(true);
         } else {
-          setMaxHeight('auto');
+          setMaxHeight("auto");
           setEnableScroll(false);
         }
       }
-    }, [sampleLectures, isLoading]);
-  
+    }, [sampleLec]);
+
     // Handle scroll visibility
     const handleScroll = () => {
       setScrolling(true);
       if (scrollTimeout.current) clearTimeout(scrollTimeout.current);
       scrollTimeout.current = setTimeout(() => setScrolling(false), 1000);
     };
-  
+
     const scrollTimeout = useRef();
-  
+
     return (
       <Card className="mb-6">
         <CardHeader className="pb-3">
@@ -153,8 +176,10 @@ const DashboardHome = () => {
             style={{ maxHeight }}
           >
             {isLoading
-              ? Array.from({ length: 3 }).map((_, index) => <SkeletonCard key={index} />)
-              : sampleLectures.map((lecture) => (
+              ? Array.from({ length: 3 }).map((_, index) => (
+                  <SkeletonCard key={index} />
+                ))
+              : sampleLec.map((lecture) => (
                   <LectureCard
                     key={lecture.id}
                     lecture={lecture}
@@ -163,29 +188,29 @@ const DashboardHome = () => {
                 ))}
           </div>
         </CardContent>
-  
+
         <style jsx>{`
           .scroll-container::-webkit-scrollbar {
             width: 8px;
             transition: opacity 0.3s;
             opacity: ${scrolling ? 1 : 0};
           }
-  
+
           .scroll-container::-webkit-scrollbar-thumb {
             background-color: rgba(100, 100, 100, 0.5);
             border-radius: 4px;
           }
-  
+
           .scroll-container::-webkit-scrollbar-track {
             background: transparent;
           }
-  
+
           /* Firefox */
           .scroll-container {
             scrollbar-width: thin;
             scrollbar-color: rgba(100, 100, 100, 0.5) transparent;
           }
-  
+
           /* Hide scrollbar by default on Firefox */
           .scroll-container:not(:hover) {
             scrollbar-color: transparent transparent;
@@ -194,10 +219,11 @@ const DashboardHome = () => {
       </Card>
     );
   };
-  
-  
-  
-  
+
+
+
+
+
   return (
     <div className="p-6 space-y-6">
       <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
@@ -206,7 +232,7 @@ const DashboardHome = () => {
           <YourLecturesSection />
         </div>
         <div className="xl:col-span-1">
-          <ProfilePanel isLoading={isLoading} />
+          <ProfilePanel isLoading={false} />
         </div>
       </div>
     </div>

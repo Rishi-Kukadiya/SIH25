@@ -1,6 +1,12 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import axios from "axios";
 
+const capitalized = (str) => {
+  return str
+    .split(" ") // split into words
+    .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+    .join(" ");
+};
 
 export const loginUser = createAsyncThunk(
   "auth/loginUser",
@@ -13,13 +19,28 @@ export const loginUser = createAsyncThunk(
           headers: {
             "Content-Type": "application/json",
           },
+          withCredentials: true,
         }
       );
 
+      console.log(response.data);
+      sessionStorage.setItem("phone" , response.data.detailedUser.phone)
+      sessionStorage.setItem("empid" , response.data.detailedUser.faculty.employeeNo)
+      sessionStorage.setItem("email" , response.data.detailedUser.email)
+      sessionStorage.setItem("profipic"  ,response.data.detailedUser.profilePic);
+      sessionStorage.setItem("dob" , response.data.detailedUser.dob)
+      sessionStorage.setItem(
+        "department",
+        capitalized(response.data.detailedUser.department.name)
+      );
+      sessionStorage.setItem(
+        "designation",
+        capitalized(response.data.detailedUser.faculty.designation)
+      );
+      sessionStorage.setItem("username", capitalized(response.data.detailedUser.fullName));
       if (response.data.status !== 200) {
         return rejectWithValue(response.data.message || "Login failed");
       }
-
       return response.data;
     } catch (error) {
       return rejectWithValue(
@@ -28,7 +49,6 @@ export const loginUser = createAsyncThunk(
     }
   }
 );
-
 
 const authSlice = createSlice({
   name: "Login",

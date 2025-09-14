@@ -10,11 +10,14 @@ import loginIllustration from "@/assets/login-illustration.jpg";
 import { Popup } from "../Components/ui/popup";
 import { useDispatch, useSelector } from "react-redux";
 import { loginUser } from "../Slices/Auth/Login.js";
+import { facultydata } from "../Slices/DashBoard/FacultyData.js";
+
 
 const Login = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const { loading } = useSelector((state) => state.Login);
+  const { Loading } = useSelector((state) => state.Facultydata)
 
   const [showPassword, setShowPassword] = useState(false);
   const [formData, setFormData] = useState({
@@ -29,9 +32,10 @@ const Login = () => {
   const [showErrorPopup, setShowErrorPopup] = useState(false);
 
   const location = useLocation();
-  const messages = location.state?.message || "";
-  const email = location.state?.email || "";
-  const password = location.state?.password || "";
+  const messages = location?.state?.message || "";
+  const email = location?.state?.email || "";
+  const password = location?.state?.password || "";
+  const autherror = location?.state?.errors || "" ;
 
   useEffect(() => {
     if (messages) {
@@ -43,7 +47,12 @@ const Login = () => {
         password: password,
       }));
     }
-  }, [messages, email, password]);
+
+    if(autherror){
+      setErrors(autherror);
+      setShowErrorPopup(true);
+    }
+  }, [messages, email, password , autherror]);
 
   const validateForm = () => {
     if (!formData.username.trim()) {
@@ -60,6 +69,18 @@ const Login = () => {
     return true;
   };
 
+    const FetchFacuty = (e) => {
+        dispatch(facultydata())
+        .unwrap()
+        .then((res)=>{
+          navigate("/dashboard/*", { state: { message: `Welcome ${e.fullName} to Dashboard` , data : res.data } });
+        })
+        .catch((err) => {
+          setErrors(err);
+          setShowErrorPopup(true);
+        })
+    }
+
   const handleSubmit = (e) => {
     e.preventDefault();
     if (validateForm()) {
@@ -70,9 +91,10 @@ const Login = () => {
       dispatch(loginUser(data))
         .unwrap()
         .then((res) => {
-          setSuccess(res.message);
-          setShowSuccessPopup(true);
-          navigate("/", { state: { message: res.message } });
+          sessionStorage.setItem("auth" , res?.accessToken);
+          if(res?.detailedUser?.role === "faculty"){
+             FetchFacuty(res?.detailedUser);
+          }
         })
         .catch((error) => {
           setErrors(error);
@@ -86,7 +108,7 @@ const Login = () => {
     if (errors) setErrors("");
   };
 
-  if (loading) {
+  if (loading || Loading) {
     return <p className="text-center py-10 text-sky-600">Loading...</p>;
   }
 
