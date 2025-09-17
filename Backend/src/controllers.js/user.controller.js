@@ -1,5 +1,5 @@
 import { User } from "../models/user.model.js";
-import { University } from "../models/university.model.js";
+import { University } from "../models/University.model.js";
 import { Student } from "../models/student.model.js";
 import { asyncHandler } from "../utils/asyncHandler.js";
 import { Faculty } from "../models/faculty.model.js";
