@@ -23,13 +23,14 @@ app.get('/health', (req, res) => res.json({ ok: true, message:"API working" }));
 
 import userRouter from "./src/routes/user.routes.js";
 import facultyRouter from "./src/routes/faculty.routes.js";
-
+import studentRouter from "./src/routes/student.routes.js";
 
 
 app.use("/api/v1/users", userRouter);
 
 app.use('/api/v1/faculty', facultyRouter);
 
+app.use('/api/v1/student', studentRouter);
 
 
 

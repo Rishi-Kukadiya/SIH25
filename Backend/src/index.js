@@ -12,7 +12,7 @@ const server = createServer(app)
 const io = new Server(server, {
     cors: {
         origin: process.env.CORS_ORIGIN,
-        methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+        methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS','PATCH'],
         credentials: true
     },
     pingInterval: 25000,
