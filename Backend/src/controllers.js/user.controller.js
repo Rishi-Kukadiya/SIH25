@@ -1,5 +1,5 @@
 import { User } from "../models/user.model.js";
-import { University } from "../models/University.model.js";
+import { University } from "../models/University.model.js"
 import { Student } from "../models/student.model.js";
 import { asyncHandler } from "../utils/asyncHandler.js";
 import { Faculty } from "../models/faculty.model.js";
@@ -150,7 +150,7 @@ const loginUser = asyncHandler(async (req, res) => {
         const { email, password } = req.body;
 
         console.log(await bcrypt.hash(password, 10));
-        
+
         if (!email || !password) {
             return res.json({ status: 400, message: "Email and password are required" });
         }
