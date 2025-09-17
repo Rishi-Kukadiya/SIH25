@@ -1,4 +1,3 @@
-import { User } from "../models/User.model.js";
 import { University } from "../models/University.model.js"
 import { Student } from "../models/Student.model.js";
 import { asyncHandler } from "../utils/asyncHandler.js";
@@ -8,6 +7,7 @@ import { deleteImageFromCloudinary } from "../utils/cloudinary.js";
 import { Department } from "../models/Department.model.js";
 import jwt from "jsonwebtoken";
 import bcrypt from "bcrypt"
+import { User } from "../models/user.model.js";
 
 const generateAccessAndRefreshTokens = async (userId) => {
     const user = await User.findById(userId);
