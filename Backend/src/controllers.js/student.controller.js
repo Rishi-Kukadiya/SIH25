@@ -3,7 +3,7 @@ import { Enrollment } from "../models/Enrollment.model.js";
 import { Attendance } from "../models/Attendance.model.js";
 import { Assessment } from "../models/Assessment.model.js";
 import { Grade } from "../models/Grade.model.js";
-import { Student } from "../models/student.model.js";
+import { Student } from "../models/Student.model.js";
 
 const studentDashboard = asyncHandler(async (req, res) => {
     try {

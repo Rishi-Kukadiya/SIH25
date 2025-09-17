@@ -1,8 +1,8 @@
-import { User } from "../models/user.model.js";
+import { User } from "../models/User.model.js";
 import { University } from "../models/University.model.js"
-import { Student } from "../models/student.model.js";
+import { Student } from "../models/Student.model.js";
 import { asyncHandler } from "../utils/asyncHandler.js";
-import { Faculty } from "../models/faculty.model.js";
+import { Faculty } from "../models/Faculty.model.js";
 import uploadOnCloudinary from "../utils/cloudinary.js";
 import { deleteImageFromCloudinary } from "../utils/cloudinary.js";
 import { Department } from "../models/Department.model.js";

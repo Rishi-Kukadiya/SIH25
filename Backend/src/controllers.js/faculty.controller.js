@@ -3,9 +3,9 @@ import { CourseOffering } from "../models/CourseOffering.model.js";
 import { Attendance } from '../models/Attendance.model.js';
 import { Grade } from '../models/Grade.model.js';
 import { Enrollment } from '../models/Enrollment.model.js';
-import { User } from '../models/user.model.js';
+import { User } from '../models/User.model.js';
 import { Assessment } from '../models/Assessment.model.js';
-import { Faculty } from "../models/faculty.model.js";
+import { Faculty } from "../models/Faculty.model.js";
 const dashboard = asyncHandler(async (req, res) => {
     try {
         const faculty = await Faculty.findOne({ user: req.user._id });
