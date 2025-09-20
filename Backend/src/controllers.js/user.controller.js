@@ -7,8 +7,8 @@ import { deleteImageFromCloudinary } from "../utils/cloudinary.js";
 import { Department } from "../models/Department.model.js";
 import jwt from "jsonwebtoken";
 import bcrypt from "bcrypt"
-import { User } from "../models/user.model.js";
-
+import { User } from "../models/User.model.js";
+import { Course } from "../models/Course.model.js";
 const generateAccessAndRefreshTokens = async (userId) => {
     const user = await User.findById(userId);
     if (!user) {

@@ -6,6 +6,7 @@ import { Enrollment } from '../models/Enrollment.model.js';
 import { User } from '../models/User.model.js';
 import { Assessment } from '../models/Assessment.model.js';
 import { Faculty } from "../models/Faculty.model.js";
+import { Course } from "../models/Course.model.js";
 const dashboard = asyncHandler(async (req, res) => {
     try {
         const faculty = await Faculty.findOne({ user: req.user._id });
@@ -200,7 +201,7 @@ const updateSpecialization = asyncHandler(async (req, res) => {
         const updatedFaculty = await Faculty.findOneAndUpdate(
             { user: req.user._id },
             { $set: { specialization } },
-            { new: true } 
+            { new: true }
         )
 
         if (!updatedFaculty) {
@@ -254,4 +255,4 @@ const updateDesignation = asyncHandler(async (req, res) => {
 
 
 
-export { dashboard, addAttendance , updateSpecialization , updateDesignation };
+export { dashboard, addAttendance, updateSpecialization, updateDesignation };

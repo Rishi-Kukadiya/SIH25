@@ -8,8 +8,8 @@ import { createServer } from "http";
 import { Server } from "socket.io";
 import { setupSocket } from "./socket.js";
 
-// Instead of listening here, we create and export the handler function
 const server = createServer(app);
+
 const io = new Server(server, {
     cors: {
         origin: process.env.CORS_ORIGIN,
@@ -23,13 +23,18 @@ const io = new Server(server, {
 setupSocket(io, app);
 app.set("io", io);
 
-// Connect DB once before handling requests
-connectDB().catch((err) => {
-    console.error("Error in connection with mongoDB: ", err);
-});
+const PORT = process.env.PORT || 5001;
 
-// ❌ REMOVE server.listen()
-// ✅ Export default handler for Vercel serverless
-export default function handler(req, res) {
-    return server.emit("request", req, res);
-}
+connectDB()
+    .then(() => {
+        app.on("error", (err) => {
+            console.log("Server connection error: ", err);
+        });
+
+        server.listen(PORT, () => {
+            console.log(`Server is running on port ${PORT}`);
+        });
+    })
+    .catch((err) => {
+        console.log("Error in connection with mongoDB: ", err);
+    });

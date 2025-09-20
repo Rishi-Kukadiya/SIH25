@@ -4,7 +4,7 @@ import { Attendance } from "../models/Attendance.model.js";
 import { Assessment } from "../models/Assessment.model.js";
 import { Grade } from "../models/Grade.model.js";
 import { Student } from "../models/Student.model.js";
-
+import { Course } from "../models/Course.model.js";
 const studentDashboard = asyncHandler(async (req, res) => {
     try {
         // 1️⃣ Find the student by user
